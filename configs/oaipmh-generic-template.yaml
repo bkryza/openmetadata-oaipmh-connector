@@ -1,0 +1,50 @@
+# Generic OAI-PMH connector template.
+# Copy and adjust for any OAI-PMH-compliant repository.
+#
+# Usage:
+#   export OPENMETADATA_HOST="http://localhost:8585/api"
+#   export OPENMETADATA_JWT_TOKEN="<ingestion-bot-jwt>"
+#   metadata ingest -c configs/oaipmh-generic-template.yaml
+
+source:
+  type: custom-database
+  # A unique identifier for this service inside OpenMetadata.
+  serviceName: my_oaipmh_repository
+  serviceConnection:
+    config:
+      type: CustomDatabase
+      sourcePythonClass: openmetadata_oaipmh_connector.connector.OAIPMHConnector
+      connectionOptions:
+        # (required) Base URL of the OAI-PMH endpoint
+        oaipmhEndpoint: "https://your-repository.example.org/oai"
+
+        # Metadata format.  Common options:
+        #   oai_dc        — Dublin Core (always supported by OAI-PMH servers)
+        #   oai_datacite  — DataCite kernel-4 (Onedata, Zenodo, Figshare, …)
+        metadataPrefix: "oai_dc"
+
+        # "true"  → create one DatabaseSchema per OAI-PMH set
+        # "false" → put all records in a single "records" schema (default)
+        useSets: "false"
+
+        # Restrict to a single OAI-PMH set (optional)
+        # setSpec: "my:set:spec"
+
+        # HTTP request timeout in seconds (default: 60)
+        # requestTimeout: "60"
+
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OPENMETADATA_HOST}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OPENMETADATA_JWT_TOKEN}

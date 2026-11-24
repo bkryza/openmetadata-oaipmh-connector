@@ -1,0 +1,39 @@
+# Ingestion workflow configuration for the Onedata demo OAI-PMH endpoint.
+#
+# Usage:
+#   export OPENMETADATA_HOST="http://localhost:8585/api"
+#   export OPENMETADATA_JWT_TOKEN="<ingestion-bot-jwt>"
+#   metadata ingest -c configs/oaipmh-onedata-demo.yaml
+
+source:
+  type: custom-database
+  serviceName: onedata_oaipmh
+  serviceConnection:
+    config:
+      type: CustomDatabase
+      sourcePythonClass: openmetadata_oaipmh_connector.connector.OAIPMHConnector
+      connectionOptions:
+        # Base URL of the OAI-PMH endpoint (without verb parameters)
+        oaipmhEndpoint: "https://demo.onedata.org/oai_pmh"
+        # Metadata format to harvest.  oai_datacite and oai_dc are supported.
+        metadataPrefix: "oai_datacite"
+        # Set useSets to "true" to create one schema per OAI-PMH set.
+        # Leave as "false" to put all records in a single "records" schema.
+        useSets: "false"
+        # Optionally restrict harvesting to one set:
+        # setSpec: "70106c451c719edc26ddaf19be9f1609ch6e74"
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OPENMETADATA_HOST}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OPENMETADATA_JWT_TOKEN}

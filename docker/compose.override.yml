@@ -1,0 +1,35 @@
+# Docker Compose override that:
+#   1. Redirects all docker.getcollate.io images to their Docker Hub mirrors
+#      (docker.getcollate.io is unreliable; Hub mirrors are identical).
+#   2. Replaces the ingestion service with a custom build that bundles
+#      the OAI-PMH connector package.
+#
+# Usage (from the directory that contains docker-compose-postgres.yml):
+#
+#   curl -fsSLO https://github.com/open-metadata/OpenMetadata/releases/download/2.0.9-release/docker-compose-postgres.yml
+#   docker compose \
+#     -f docker-compose-postgres.yml \
+#     -f <path-to-this-repo>/docker/compose.override.yml \
+#     up --detach --build
+
+services:
+  postgresql:
+    image: openmetadata/postgresql:2.0.9
+
+  elasticsearch:
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=false
+
+  execute-migrate-all:
+    image: openmetadata/server:2.0.9
+
+  openmetadata-server:
+    image: openmetadata/server:2.0.9
+
+  ingestion:
+    build:
+      # context is resolved relative to the working directory from which
+      # `docker compose` is invoked (the directory containing docker-compose-postgres.yml).
+      context: openmetadata-oaipmh-connector
+      dockerfile: docker/Dockerfile
+    image: docker.onedata.org/openmetadata-oaipmh-ingestion:latest

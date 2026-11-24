@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=78.1.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openmetadata-oaipmh-connector"
+version = "0.1.0"
+description = "OpenMetadata connector for OAI-PMH metadata harvesting endpoints"
+requires-python = ">=3.10"
+dependencies = [
+    "openmetadata-ingestion==2.0.9.0",
+    "requests>=2.28",
+]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [
+    { name = "Bartek Kryza", email = "bkryza@gmail.com" },
+]
+keywords = ["Onedata", "OpenMetadata", "OAI-PMH"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
